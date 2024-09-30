@@ -21,6 +21,9 @@ from watchdog.events import (PatternMatchingEventHandler,
                              RegexMatchingEventHandler)
 
 
+EVENTS_TO_RESTART = {'moved', 'deleted', 'created', 'modified'}
+
+
 parser = argparse.ArgumentParser(
         description='Supervisor plugin to watch a directory and restart '
                     'programs on changes')
@@ -164,7 +167,7 @@ def commence_restart():
 class RestartEventHandler(object):
 
     def on_any_event(self, event):
-        if event.event_type == "opened":
+        if event.event_type not in EVENTS_TO_RESTART:
             return
 
         thread = threading.Thread(target=commence_restart)
@@ -197,7 +200,7 @@ def main():
             event_handler = RestartRegexMatchingEventHandler(
                     regexes=args.recognize_regex or ['.*'],
                     ignore_regexes=args.ignore_regex
-                    + ['.*/\..*'] if args.ignore_hidden else [],
+                    + [r'.*/\..*'] if args.ignore_hidden else [],
                     ignore_directories=args.ignore_directories,
                     case_sensitive=args.case_sensitive)
         except re.error as exc:
