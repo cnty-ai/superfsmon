@@ -167,6 +167,7 @@ def commence_restart():
 class RestartEventHandler(object):
 
     def on_any_event(self, event):
+        info(f'{event.src_path} {event.event_type}')
         if event.event_type not in EVENTS_TO_RESTART:
             return
 
